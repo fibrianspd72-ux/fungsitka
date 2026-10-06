@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full bg-slate-900 text-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kuis Interaktif Aplikasi Fungsi Matematika</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Chart.js CDN for Function Visualization -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- KaTeX for Rendering LaTeX Mathematics -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+  <!-- Google Font Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Custom Configuration & Styles -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              500: '#06b6d4',
+              600: '#0891b2',
+              700: '#0e7490',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .katex-display { margin: 0.5em 0; overflow-x: auto; overflow-y: hidden; }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-slate-100">
+
+  <!-- Top Navigation Header -->
+  <header class="border-b border-slate-800 bg-slate-950/80 backdrop-filter backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="p-2.5 bg-cyan-500/20 text-cyan-400 rounded-xl border border-cyan-500/30">
+          <i class="fa-solid fa-square-root-variable text-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold bg-gradient-to-r from-cyan-400 to-indigo-400 bg-clip-text text-transparent">
+            MathVerse Interactive
+          </h1>
+          <p class="text-xs text-slate-400">Aplikasi Fungsi Eksponensial, Trigonometri & Nilai Mutlak</p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="flex items-center space-x-2 bg-slate-800/80 p-1.5 rounded-xl border border-slate-700/60 text-xs sm:text-sm font-medium">
+        <button id="tab-quiz-btn" onclick="switchTab('quiz')" class="px-3.5 py-1.5 rounded-lg bg-cyan-600 text-white shadow-md transition duration-200 flex items-center gap-2">
+          <i class="fa-solid fa-circle-question"></i> <span class="hidden sm:inline">Kuis Interaktif</span>
+        </button>
+        <button id="tab-graph-btn" onclick="switchTab('graph')" class="px-3.5 py-1.5 rounded-lg text-slate-400 hover:text-white transition duration-200 flex items-center gap-2">
+          <i class="fa-solid fa-chart-line"></i> <span class="hidden sm:inline">Visualisasi Grafik</span>
+        </button>
+        <button id="tab-summary-btn" onclick="switchTab('summary')" class="px-3.5 py-1.5 rounded-lg text-slate-400 hover:text-white transition duration-200 flex items-center gap-2">
+          <i class="fa-solid fa-book-open"></i> <span class="hidden sm:inline">Ringkasan Soal</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full">
+
+    <!-- SECTION 1: QUIZ VIEW -->
+    <section id="view-quiz" class="space-y-6">
+      
+      <!-- Quiz Header & Progress -->
+      <div class="glass-card rounded-2xl p-4 sm:p-6 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="flex items-center gap-4 w-full md:w-auto justify-between md:justify-start">
+          <div>
+            <span class="text-xs uppercase font-semibold tracking-wider text-cyan-400 bg-cyan-950/80 border border-cyan-800/60 px-2.5 py-1 rounded-md">
+              Progress Kuis
+            </span>
+            <h2 id="question-tracker" class="text-lg font-bold text-slate-100 mt-1">Soal 1 dari 10</h2>
+          </div>
+          <div class="flex items-center gap-3 bg-slate-800/80 px-3.5 py-2 rounded-xl border border-slate-700">
+            <i class="fa-regular fa-clock text-cyan-400"></i>
+            <span id="timer" class="font-mono font-semibold text-sm text-slate-200">00:00</span>
+          </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="w-full md:w-1/2 flex items-center gap-3">
+          <div class="w-full bg-slate-800 rounded-full h-3 border border-slate-700/80 overflow-hidden">
+            <div id="progress-bar" class="bg-gradient-to-r from-cyan-500 to-indigo-500 h-3 rounded-full transition-all duration-300 w-0"></div>
+          </div>
+          <span id="progress-percentage" class="text-xs font-semibold text-cyan-400 min-w-[3rem] text-right">0%</span>
+        </div>
+      </div>
+
+      <!-- Main Quiz Card -->
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        
+        <!-- Left: Question & Options Panel -->
+        <div class="lg:col-span-3 space-y-6">
+          <div class="glass-card rounded-2xl p-6 sm:p-8 space-y-6 relative overflow-hidden border border-slate-700/80 shadow-2xl">
+            <!-- Category Badge -->
+            <div class="flex items-center justify-between flex-wrap gap-2">
+              <span id="question-category" class="px-3 py-1 text-xs font-bold rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                Fungsi Eksponensial
+              </span>
+              <span id="question-type" class="text-xs text-slate-400 italic">Pilihan Ganda</span>
+            </div>
+
+            <!-- Question Text -->
+            <div id="question-text" class="text-base sm:text-lg font-medium text-slate-100 leading-relaxed min-h-[4rem]">
+              Memuat soal...
+            </div>
+
+            <!-- Context Box / Equation Feature -->
+            <div id="question-context" class="p-4 bg-slate-950/60 rounded-xl border border-slate-800 text-sm text-slate-300 hidden">
+              <!-- Equation or Context image text will be injected here -->
+            </div>
+
+            <!-- Options Container -->
+            <div id="options-container" class="space-y-3 pt-2">
+              <!-- Rendered options will be placed here -->
+            </div>
+
+            <!-- Explanation Box (Shows after answer) -->
+            <div id="explanation-box" class="p-5 bg-cyan-950/40 border border-cyan-800/60 rounded-xl space-y-2 hidden">
+              <div class="flex items-center gap-2 text-cyan-300 font-semibold text-sm">
+                <i class="fa-solid fa-lightbulb"></i> Pembahasan Lengkap:
+              </div>
+              <div id="explanation-text" class="text-sm text-slate-300 leading-relaxed pt-1">
+                <!-- Explanation LaTeX content -->
+              </div>
+            </div>
+
+            <!-- Navigation Controls -->
+            <div class="flex justify-between items-center pt-4 border-t border-slate-800">
+              <button id="prev-btn" onclick="navigateQuestion(-1)" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2">
+                <i class="fa-solid fa-arrow-left"></i> Sebelumnya
+              </button>
+              <button id="next-btn" onclick="navigateQuestion(1)" class="px-5 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-semibold shadow-lg shadow-cyan-600/30 transition flex items-center gap-2">
+                Selanjutnya <i class="fa-solid fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Question Grid Palette -->
+        <div class="lg:col-span-1">
+          <div class="glass-card rounded-2xl p-5 space-y-4 border border-slate-700/80">
+            <h3 class="text-sm font-bold text-slate-200 flex items-center justify-between">
+              <span>Navigasi Soal</span>
+              <span id="answered-count" class="text-xs font-normal text-slate-400">0/10 Dijawab</span>
+            </h3>
+            <div id="question-grid" class="grid grid-cols-5 gap-2">
+              <!-- Question buttons 1 to 10 generated here -->
+            </div>
+
+            <div class="pt-4 border-t border-slate-800 space-y-2 text-xs text-slate-400">
+              <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-md bg-cyan-600 inline-block"></span> Terpilih
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-md bg-emerald-600 inline-block"></span> Benar
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-md bg-rose-600 inline-block"></span> Salah
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-md bg-slate-800 border border-slate-700 inline-block"></span> Belum Diisi
+              </div>
+            </div>
+
+            <button onclick="finishQuiz()" class="w-full py-2.5 mt-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold text-sm shadow-lg shadow-indigo-600/25 transition">
+              Selesai & Lihat Skor
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 2: GRAPH VISUALIZER VIEW -->
+    <section id="view-graph" class="space-y-6 hidden">
+      <div class="glass-card rounded-2xl p-6 space-y-6 border border-slate-700/80">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-4">
+          <div>
+            <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2">
+              <i class="fa-solid fa-chart-area text-cyan-400"></i> Visualisasi Interactive Plot Fungsi
+            </h2>
+            <p class="text-sm text-slate-400">Eksplorasi bentuk grafik fungsi eksponensial, trigonometri, dan nilai mutlak secara visual.</p>
+          </div>
+          
+          <!-- Select Model -->
+          <div class="flex items-center gap-2 w-full md:w-auto">
+            <label for="function-select" class="text-xs text-slate-400 font-medium whitespace-nowrap">Pilih Model:</label>
+            <select id="function-select" onchange="updateChartModel()" class="bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded-xl px-3 py-2 w-full md:w-64 focus:outline-none focus:border-cyan-500">
+              <option value="exponential">1. Kelinci $K(t) = 4 \cdot 2^{t/4}$</option>
+              <option value="trigonometric">2. Roller Coaster $h(t) = 5\cos(\frac{\pi}{6}t) + 5$</option>
+              <option value="roof">3. Fasad Atap $f(x) = 10 - |x - 5|$</option>
+              <option value="bridge">4. Jembatan $g(x) = |x - 8| + 2$</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Formula Display Box -->
+        <div id="graph-formula-box" class="p-4 bg-slate-950/80 rounded-xl border border-slate-800 text-center text-slate-200 font-medium">
+          <!-- Mathematical Formula -->
+        </div>
+
+        <!-- Chart Canvas Container -->
+        <div class="relative w-full h-[380px] bg-slate-950/60 rounded-xl p-4 border border-slate-800">
+          <canvas id="functionChart"></canvas>
+        </div>
+
+        <!-- Dynamic Key Analysis -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="p-4 bg-slate-800/50 rounded-xl border border-slate-700/60">
+            <span class="text-xs text-slate-400 uppercase font-bold tracking-wider">Titik Puncak / Awal</span>
+            <p id="graph-stat-1" class="text-lg font-bold text-cyan-400 mt-1">-</p>
+          </div>
+          <div class="p-4 bg-slate-800/50 rounded-xl border border-slate-700/60">
+            <span class="text-xs text-slate-400 uppercase font-bold tracking-wider">Nilai Minimum / Sumbu</span>
+            <p id="graph-stat-2" class="text-lg font-bold text-indigo-400 mt-1">-</p>
+          </div>
+          <div class="p-4 bg-slate-800/50 rounded-xl border border-slate-700/60">
+            <span class="text-xs text-slate-400 uppercase font-bold tracking-wider">Karakteristik Utama</span>
+            <p id="graph-stat-3" class="text-xs text-slate-300 mt-1 leading-snug">-</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: SUMMARY & REVIEW VIEW -->
+    <section id="view-summary" class="space-y-6 hidden">
+      <div class="glass-card rounded-2xl p-6 space-y-6 border border-slate-700/80">
+        <div class="border-b border-slate-800 pb-4">
+          <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2">
+            <i class="fa-solid fa-list-check text-cyan-400"></i> Ringkasan Materi & Soal
+          </h2>
+          <p class="text-sm text-slate-400">Daftar lengkap 10 soal kuis beserta penjelasan singkat konsep matematikanya.</p>
+        </div>
+
+        <div id="summary-list" class="space-y-4">
+          <!-- Dynamically populated summary items -->
+        </div>
+      </div>
+    </section>
+
+    <!-- MODAL: QUIZ RESULTS -->
+    <div id="result-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+      <div class="glass-card rounded-3xl p-6 sm:p-8 max-w-lg w-full space-y-6 border border-slate-700 shadow-2xl text-center">
+        <div class="w-20 h-20 mx-auto rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 flex items-center justify-center text-3xl">
+          <i id="result-icon" class="fa-solid fa-trophy"></i>
+        </div>
+        
+        <div>
+          <h2 class="text-2xl font-extrabold text-white">Kuis Selesai!</h2>
+          <p class="text-sm text-slate-400 mt-1">Berikut adalah hasil performa pengerjaan Anda:</p>
+        </div>
+
+        <!-- Score Gauge display -->
+        <div class="p-6 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-2">
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Skor Akhir Anda</span>
+          <div id="modal-score" class="text-5xl font-extrabold bg-gradient-to-r from-cyan-400 to-indigo-400 bg-clip-text text-transparent">
+            80 / 100
+          </div>
+          <div id="modal-grade" class="text-sm font-semibold text-cyan-300">Sangat Baik!</div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 text-left">
+          <div class="p-3.5 bg-slate-800/60 rounded-xl border border-slate-700/60">
+            <span class="text-xs text-slate-400">Jawaban Benar</span>
+            <p id="modal-correct-count" class="text-lg font-bold text-emerald-400">8 / 10</p>
+          </div>
+          <div class="p-3.5 bg-slate-800/60 rounded-xl border border-slate-700/60">
+            <span class="text-xs text-slate-400">Waktu Tempuh</span>
+            <p id="modal-time-spent" class="text-lg font-bold text-slate-200">02:15</p>
+          </div>
+        </div>
+
+        <div class="flex gap-3 pt-2">
+          <button onclick="restartQuiz()" class="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-sm transition">
+            <i class="fa-solid fa-rotate-right mr-1"></i> Ulangi Kuis
+          </button>
+          <button onclick="closeModalAndReview()" class="flex-1 py-3 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-sm shadow-lg shadow-cyan-600/30 transition">
+            Review Pembahasan
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800 bg-slate-950 py-4 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4">
+      &copy; 2026 MathVerse Interactive &bull; Kuis Aplikasi Fungsi Eksponensial, Trigonometri & Nilai Mutlak
+    </div>
+  </footer>
+
+  <script>
+    // -------------------------------------------------------------
+    // 1. DATASET: 10 SOAL LENGKAP BERSAMA LATEX & PEMBAHASAN
+    // -------------------------------------------------------------
+    const questions = [
+      {
+        id: 1,
+        category: "Fungsi Eksponensial",
+        type: "Pilihan Ganda",
+        question: "Populasi kelinci di suatu pulau dimodelkan dengan fungsi eksponensial $K(t) = 4 \\cdot 2^{t/4}$ dengan $t$ menyatakan waktu dalam tahun dan $K(t)$ menyatakan populasi dalam ribu ekor. Manakah pernyataan berikut yang **benar** mengenai model tersebut?",
+        context: "Model Populasi Kelinci: $K(t) = 4 \\cdot 2^{t/4}$ (ribu ekor)",
+        options: [
+          "Setiap 4 tahun populasi bertambah menjadi 4 kalinya.",
+          "Pada saat awal ($t = 0$), populasi kelinci berjumlah $4$ ribu ekor.",
+          "Populasi kelinci selalu berkurang seiring berjalannya waktu.",
+          "Grafik fungsi memiliki asimtot tegak pada $t = 4$."
+        ],
+        correct: 1,
+        explanation: "Untuk $t = 0$, $K(0) = 4 \\cdot 2^{0/4} = 4 \\cdot 2^0 = 4$ ribu ekor. Maka populasi awal kelinci berjumlah 4 ribu ekor. Sedangkan setiap 4 tahun, populasi berlipat ganda ($2$ kali lipat), bukan $4$ kali lipat."
+      },
+      {
+        id: 2,
+        category: "Fungsi Eksponensial",
+        type: "Pilihan Ganda",
+        question: "Berdasarkan model populasi kelinci $K(t) = 4 \\cdot 2^{t/4}$ (dalam ribu ekor), berapakah populasi kelinci pada tahun ke-$12$ ($t = 12$)?",
+        context: "Substitusikan $t = 12$ ke dalam fungsi $K(t) = 4 \\cdot 2^{t/4}$",
+        options: [
+          "$8$ ribu ekor",
+          "$16$ ribu ekor",
+          "$32$ ribu ekor",
+          "$64$ ribu ekor"
+        ],
+        correct: 2,
+        explanation: "Substitusi $t = 12$:\n$$K(12) = 4 \\cdot 2^{12/4} = 4 \\cdot 2^3 = 4 \\cdot 8 = 32 \\text{ ribu ekor}$$"
+      },
+      {
+        id: 3,
+        category: "Fungsi Eksponensial",
+        type: "Pilihan Ganda",
+        question: "Sebuah laboratorium memodelkan pertumbuhan populasi bakteri dengan fungsi $P(t) = 100 \\cdot 3^{t/2}$, dengan $t$ menyatakan waktu dalam jam dan $P(t)$ menyatakan jumlah sel bakteri. Setelah berapa jam populasi bakteri mencapai $900$ sel?",
+        context: "Persamaan: $P(t) = 900 \\implies 100 \\cdot 3^{t/2} = 900$",
+        options: [
+          "$2$ jam",
+          "$3$ jam",
+          "$4$ jam",
+          "$6$ jam"
+        ],
+        correct: 2,
+        explanation: "Selesaikan persamaan:\n$$100 \\cdot 3^{t/2} = 900 \\implies 3^{t/2} = 9 = 3^2$$\nDengan menyamakan eksponen:\n$$\\frac{t}{2} = 2 \\implies t = 4 \\text{ jam}$$"
+      },
+      {
+        id: 4,
+        category: "Fungsi Trigonometri",
+        type: "Pilihan Ganda",
+        question: "Lintasan sebuah roller coaster dinyatakan oleh fungsi $h(t) = 5 \\cos\\left(\\frac{\\pi}{6} t\\right) + 5$ dengan $h(t)$ menyatakan ketinggian (meter) dan $t$ menyatakan waktu (detik). Berapakah periode gerak roller coaster tersebut?",
+        context: "Fungsi: $h(t) = 5 \\cos\\left(\\frac{\\pi}{6} t\\right) + 5$",
+        options: [
+          "$6$ detik",
+          "$10$ detik",
+          "$12$ detik",
+          "$24$ detik"
+        ],
+        correct: 2,
+        explanation: "Rumus periode fungsi cosinus $y = A \\cos(Bt) + C$ adalah $T = \\frac{2\\pi}{B}$.\nDiketahui $B = \\frac{\\pi}{6}$, maka:\n$$T = \\frac{2\\pi}{\\pi / 6} = 2\\pi \\cdot \\frac{6}{\\pi} = 12 \\text{ detik}$$"
+      },
+      {
+        id: 5,
+        category: "Fungsi Trigonometri",
+        type: "Pilihan Ganda",
+        question: "Berdasarkan fungsi ketinggian roller coaster $h(t) = 5 \\cos\\left(\\frac{\\pi}{6} t\\right) + 5$, berapakah ketinggian minimum yang dapat dicapai oleh roller coaster tersebut?",
+        context: "Nilai minimum fungsi cosinus $\\cos(\\theta) = -1$",
+        options: [
+          "$-5$ meter",
+          "$0$ meter",
+          "$2$ meter",
+          "$5$ meter"
+        ],
+        correct: 1,
+        explanation: "Nilai minimum dari $\\cos\\left(\\frac{\\pi}{6} t\\right)$ adalah $-1$.\nSubstitusi ke dalam fungsi:\n$$h_{\\min} = 5(-1) + 5 = -5 + 5 = 0 \\text{ meter}$$"
+      },
+      {
+        id: 6,
+        category: "Fungsi Trigonometri",
+        type: "Pilihan Ganda",
+        question: "Pada fungsi ketinggian roller coaster $h(t) = 5 \\cos\\left(\\frac{\\pi}{6} t\\right) + 5$, pada detik ke berapakah roller coaster pertama kali mencapai ketinggian maksimum pertamanya ($10$ meter)?",
+        context: "Ketinggian maksimum dicapai saat $\\cos\\left(\\frac{\\pi}{6} t\\right) = 1$",
+        options: [
+          "$t = 0$ detik",
+          "$t = 3$ detik",
+          "$t = 6$ detik",
+          "$t = 12$ detik"
+        ],
+        correct: 0,
+        explanation: "Ketinggian maksimum $10$ meter dicapai ketika $\\cos\\left(\\frac{\\pi}{6} t\\right) = 1$.\nNilai cosinus bernilai $1$ pertama kali saat sudut $0$ rad:\n$$\\frac{\\pi}{6} t = 0 \\implies t = 0 \\text{ detik}$$"
+      },
+      {
+        id: 7,
+        category: "Fungsi Nilai Mutlak",
+        type: "Pilihan Ganda",
+        question: "Fasad atap sebuah bangunan dirancang mengikuti persamaan $f(x) = 10 - |x - 5|$ dengan $x$ menyatakan jarak horizontal (meter) dari sisi paling kiri dan $f(x)$ menyatakan tinggi bangunan (meter). Berapakah tinggi maksimum bangunan tersebut?",
+        context: "Fungsi: $f(x) = 10 - |x - 5|$",
+        options: [
+          "$5$ meter",
+          "$10$ meter",
+          "$12$ meter",
+          "$15$ meter"
+        ],
+        correct: 1,
+        explanation: "Nilai mutlak $|x - 5| \\ge 0$. Nilai minimum dari $|x - 5|$ adalah $0$ (terjadi saat $x = 5$).\nMaka tinggi maksimum:\n$$f(5) = 10 - 0 = 10 \\text{ meter}$$"
+      },
+      {
+        id: 8,
+        category: "Fungsi Nilai Mutlak",
+        type: "Pilihan Ganda",
+        question: "Berdasarkan fungsi $f(x) = 10 - |x - 5|$, jika lebar lantai dasar bangunan diukur pada saat tinggi bangunan $f(x) \\ge 6$ meter, berapakah lebar lantai tersebut?",
+        context: "Pertidaksamaan: $10 - |x - 5| \\ge 6$",
+        options: [
+          "$4$ meter",
+          "$6$ meter",
+          "$8$ meter",
+          "$10$ meter"
+        ],
+        correct: 2,
+        explanation: "Selesaikan pertidaksamaan:\n$$10 - |x - 5| \\ge 6 \\implies |x - 5| \\le 4$$\n$$-4 \\le x - 5 \\le 4 \\implies 1 \\le x \\le 9$$\nLebar lantai yang memenuhi adalah selisih nilai $x$:\n$$\\text{Lebar} = 9 - 1 = 8 \\text{ meter}$$"
+      },
+      {
+        id: 9,
+        category: "Fungsi Nilai Mutlak",
+        type: "Pilihan Ganda",
+        question: "Berdasarkan fungsi $f(x) = 10 - |x - 5|$, manakah pernyataan berikut yang **salah**?",
+        context: "Evaluasi properti fungsi $f(x) = 10 - |x - 5|$",
+        options: [
+          "Puncak atap berada pada jarak horizontal $x = 5$ meter.",
+          "Tinggi bangunan di titik awal ($x = 0$) adalah $5$ meter.",
+          "Grafik fungsi $f(x)$ memiliki sumbu simetri pada garis $x = 10$.",
+          "Semakin jauh jarak $x$ dari titik puncak $5$, tinggi bangunan semakin rendah."
+        ],
+        correct: 2,
+        explanation: "Sumbu simetri grafik fungsi $f(x) = 10 - |x - 5|$ berada pada garis $x = 5$ (titik puncak $V$), BUKAN $x = 10$. Oleh karena itu, pernyataan C adalah SALAH."
+      },
+      {
+        id: 10,
+        category: "Fungsi Nilai Mutlak",
+        type: "Pilihan Ganda",
+        question: "Sebuah jembatan memiliki kabel penopang yang membentuk fungsi nilai mutlak $g(x) = |x - 8| + 2$, dengan $x$ menyatakan jarak horizontal (meter) dari pangkal jembatan. Berapakah ketinggian kabel penopang terendah dari permukaan jalan?",
+        context: "Fungsi: $g(x) = |x - 8| + 2$",
+        options: [
+          "$0$ meter",
+          "$2$ meter",
+          "$6$ meter",
+          "$8$ meter"
+        ],
+        correct: 1,
+        explanation: "Nilai minimum mutlak $|x - 8|$ adalah $0$ (saat $x = 8$).\nMaka titik terendah kabel penopang dari permukaan jalan adalah:\n$$g(8) = 0 + 2 = 2 \\text{ meter}$$"
+      }
+    ];
+
+    // -------------------------------------------------------------
+    // 2. QUIZ STATE VARIABLES
+    // -------------------------------------------------------------
+    let currentQuestionIndex = 0;
+    let userAnswers = new Array(questions.length).fill(null);
+    let timerInterval = null;
+    let secondsElapsed = 0;
+    let chartInstance = null;
+
+    // -------------------------------------------------------------
+    // 3. INITIALIZATION & MATHJAX/KATEX RENDER HELPER
+    // -------------------------------------------------------------
+    window.addEventListener('DOMContentLoaded', () => {
+      initQuiz();
+      renderSummaryList();
+      initChart();
+    });
+
+    function renderMath(element) {
+      if (window.renderMathInElement) {
+        renderMathInElement(element || document.body, {
+          delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "$", right: "$", display: false }
+          ],
+          throwOnError: false
+        });
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 4. QUIZ LOGIC FUNCTIONS
+    // -------------------------------------------------------------
+    function initQuiz() {
+      currentQuestionIndex = 0;
+      userAnswers.fill(null);
+      secondsElapsed = 0;
+      startTimer();
+      renderQuestionGrid();
+      renderQuestion();
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        secondsElapsed++;
+        const mins = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+        const secs = String(secondsElapsed % 60).padStart(2, '0');
+        document.getElementById('timer').textContent = `${mins}:${secs}`;
+      }, 1000);
+    }
+
+    function renderQuestionGrid() {
+      const gridContainer = document.getElementById('question-grid');
+      gridContainer.innerHTML = '';
+
+      questions.forEach((q, idx) => {
+        const btn = document.createElement('button');
+        btn.textContent = idx + 1;
+        btn.onclick = () => jumpToQuestion(idx);
+        
+        // Base Styling
+        btn.className = 'w-9 h-9 rounded-xl text-xs font-bold transition flex items-center justify-center border ';
+
+        // Color Logic
+        if (idx === currentQuestionIndex) {
+          btn.classList.add('bg-cyan-600', 'text-white', 'border-cyan-400', 'ring-2', 'ring-cyan-500/50');
+        } else if (userAnswers[idx] !== null) {
+          if (userAnswers[idx] === q.correct) {
+            btn.classList.add('bg-emerald-600/30', 'text-emerald-300', 'border-emerald-500/50');
+          } else {
+            btn.classList.add('bg-rose-600/30', 'text-rose-300', 'border-rose-500/50');
+          }
+        } else {
+          btn.classList.add('bg-slate-800', 'text-slate-300', 'border-slate-700', 'hover:bg-slate-700');
+        }
+
+        gridContainer.appendChild(btn);
+      });
+
+      // Update answered count
+      const answered = userAnswers.filter(a => a !== null).length;
+      document.getElementById('answered-count').textContent = `${answered}/10 Dijawab`;
+
+      // Update Progress Bar
+      const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+      document.getElementById('progress-bar').style.width = `${progress}%`;
+      document.getElementById('progress-percentage').textContent = `${Math.round(progress)}%`;
+    }
+
+    function renderQuestion() {
+      const q = questions[currentQuestionIndex];
+
+      // Update Question Info
+      document.getElementById('question-tracker').textContent = `Soal ${currentQuestionIndex + 1} dari ${questions.length}`;
+      document.getElementById('question-category').textContent = q.category;
+      document.getElementById('question-type').textContent = q.type;
+      
+      const qText = document.getElementById('question-text');
+      qText.innerHTML = q.question;
+
+      // Question Context Box
+      const contextBox = document.getElementById('question-context');
+      if (q.context) {
+        contextBox.classList.remove('hidden');
+        contextBox.innerHTML = `<i class="fa-solid fa-circle-info text-cyan-400 mr-2"></i> ${q.context}`;
+      } else {
+        contextBox.classList.add('hidden');
+      }
+
+      // Render Options
+      const optionsContainer = document.getElementById('options-container');
+      optionsContainer.innerHTML = '';
+
+      q.options.forEach((optText, optIdx) => {
+        const optionBtn = document.createElement('button');
+        optionBtn.className = 'w-full p-4 rounded-xl text-left border transition flex items-center justify-between text-sm sm:text-base group ';
+        
+        const isSelected = userAnswers[currentQuestionIndex] === optIdx;
+        const isAnswered = userAnswers[currentQuestionIndex] !== null;
+
+        if (isAnswered) {
+          if (optIdx === q.correct) {
+            optionBtn.classList.add('bg-emerald-950/60', 'border-emerald-500', 'text-emerald-200');
+          } else if (isSelected && optIdx !== q.correct) {
+            optionBtn.classList.add('bg-rose-950/60', 'border-rose-500', 'text-rose-200');
+          } else {
+            optionBtn.classList.add('bg-slate-800/40', 'border-slate-800', 'text-slate-400', 'opacity-60');
+          }
+        } else {
+          optionBtn.classList.add('bg-slate-800/70', 'border-slate-700/80', 'text-slate-200', 'hover:bg-slate-700/70', 'hover:border-slate-600');
+        }
+
+        const optionLetter = String.fromCharCode(65 + optIdx); // A, B, C, D
+        
+        optionBtn.innerHTML = `
+          <div class="flex items-center gap-3">
+            <span class="w-7 h-7 rounded-lg bg-slate-900 border border-slate-700 flex items-center justify-center font-bold text-xs ${isSelected ? 'text-cyan-400 border-cyan-500' : 'text-slate-400'}">${optionLetter}</span>
+            <span>${optText}</span>
+          </div>
+          ${isAnswered && optIdx === q.correct ? '<i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>' : ''}
+          ${isAnswered && isSelected && optIdx !== q.correct ? '<i class="fa-solid fa-circle-xmark text-rose-400 text-lg"></i>' : ''}
+        `;
+
+        optionBtn.onclick = () => selectOption(optIdx);
+        optionsContainer.appendChild(optionBtn);
+      });
+
+      // Explanation box rendering
+      const expBox = document.getElementById('explanation-box');
+      const expText = document.getElementById('explanation-text');
+      if (userAnswers[currentQuestionIndex] !== null) {
+        expBox.classList.remove('hidden');
+        expText.innerHTML = q.explanation;
+      } else {
+        expBox.classList.add('hidden');
+      }
+
+      // Prev/Next Button state
+      document.getElementById('prev-btn').disabled = currentQuestionIndex === 0;
+      
+      const nextBtn = document.getElementById('next-btn');
+      if (currentQuestionIndex === questions.length - 1) {
+        nextBtn.innerHTML = `Selesai <i class="fa-solid fa-check-double"></i>`;
+      } else {
+        nextBtn.innerHTML = `Selanjutnya <i class="fa-solid fa-arrow-right"></i>`;
+      }
+
+      // Render math equations via KaTeX
+      renderMath(document.getElementById('view-quiz'));
+      renderQuestionGrid();
+    }
+
+    function selectOption(index) {
+      if (userAnswers[currentQuestionIndex] !== null) return; // Prevent changing after selected
+      userAnswers[currentQuestionIndex] = index;
+      renderQuestion();
+    }
+
+    function navigateQuestion(direction) {
+      const newIdx = currentQuestionIndex + direction;
+      if (newIdx >= 0 && newIdx < questions.length) {
+        currentQuestionIndex = newIdx;
+        renderQuestion();
+      } else if (newIdx >= questions.length) {
+        finishQuiz();
+      }
+    }
+
+    function jumpToQuestion(idx) {
+      currentQuestionIndex = idx;
+      renderQuestion();
+    }
+
+    // -------------------------------------------------------------
+    // 5. SCORE MODAL & FINISH LOGIC
+    // -------------------------------------------------------------
+    function finishQuiz() {
+      clearInterval(timerInterval);
+
+      let correctCount = 0;
+      userAnswers.forEach((ans, idx) => {
+        if (ans === questions[idx].correct) correctCount++;
+      });
+
+      const score = Math.round((correctCount / questions.length) * 100);
+
+      document.getElementById('modal-score').textContent = `${score} / 100`;
+      document.getElementById('modal-correct-count').textContent = `${correctCount} / ${questions.length}`;
+      
+      const mins = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+      const secs = String(secondsElapsed % 60).padStart(2, '0');
+      document.getElementById('modal-time-spent').textContent = `${mins}:${secs}`;
+
+      const gradeEl = document.getElementById('modal-grade');
+      const iconEl = document.getElementById('result-icon');
+
+      if (score >= 80) {
+        gradeEl.textContent = "Sangat Baik! Pemahaman Anda Luar Biasa.";
+        gradeEl.className = "text-sm font-semibold text-emerald-400";
+        iconEl.className = "fa-solid fa-trophy text-amber-400";
+      } else if (score >= 60) {
+        gradeEl.textContent = "Bagus! Teruskan Berlatih.";
+        gradeEl.className = "text-sm font-semibold text-cyan-400";
+        iconEl.className = "fa-solid fa-medal text-cyan-400";
+      } else {
+        gradeEl.textContent = "Tetap Semangat! Pelajari Pembahasan Di Bawah.";
+        gradeEl.className = "text-sm font-semibold text-rose-400";
+        iconEl.className = "fa-solid fa-book-open-reader text-rose-400";
+      }
+
+      document.getElementById('result-modal').classList.remove('hidden');
+    }
+
+    function restartQuiz() {
+      document.getElementById('result-modal').classList.add('hidden');
+      initQuiz();
+    }
+
+    function closeModalAndReview() {
+      document.getElementById('result-modal').classList.add('hidden');
+      currentQuestionIndex = 0;
+      renderQuestion();
+    }
+
+    // -------------------------------------------------------------
+    // 6. TAB NAVIGATION LOGIC
+    // -------------------------------------------------------------
+    function switchTab(tab) {
+      const quizView = document.getElementById('view-quiz');
+      const graphView = document.getElementById('view-graph');
+      const summaryView = document.getElementById('view-summary');
+
+      const quizBtn = document.getElementById('tab-quiz-btn');
+      const graphBtn = document.getElementById('tab-graph-btn');
+      const summaryBtn = document.getElementById('tab-summary-btn');
+
+      // Reset Active classes
+      [quizBtn, graphBtn, summaryBtn].forEach(btn => {
+        btn.className = "px-3.5 py-1.5 rounded-lg text-slate-400 hover:text-white transition duration-200 flex items-center gap-2";
+      });
+
+      quizView.classList.add('hidden');
+      graphView.classList.add('hidden');
+      summaryView.classList.add('hidden');
+
+      if (tab === 'quiz') {
+        quizView.classList.remove('hidden');
+        quizBtn.className = "px-3.5 py-1.5 rounded-lg bg-cyan-600 text-white shadow-md transition duration-200 flex items-center gap-2";
+      } else if (tab === 'graph') {
+        graphView.classList.remove('hidden');
+        graphBtn.className = "px-3.5 py-1.5 rounded-lg bg-cyan-600 text-white shadow-md transition duration-200 flex items-center gap-2";
+        updateChartModel();
+      } else if (tab === 'summary') {
+        summaryView.classList.remove('hidden');
+        summaryBtn.className = "px-3.5 py-1.5 rounded-lg bg-cyan-600 text-white shadow-md transition duration-200 flex items-center gap-2";
+        renderMath(summaryView);
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 7. CHART.JS VISUALIZER LOGIC
+    // -------------------------------------------------------------
+    function initChart() {
+      const ctx = document.getElementById('functionChart').getContext('2d');
+      chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [{
+            label: 'Grafik Fungsi',
+            data: [],
+            borderColor: '#06b6d4',
+            backgroundColor: 'rgba(6, 182, 212, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.3,
+            pointRadius: 4,
+            pointBackgroundColor: '#38bdf8'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: '#94a3b8', font: { family: 'Inter' } } },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return `y = ${context.parsed.y}`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: { color: '#94a3b8' },
+              title: { display: true, text: 'Nilai x / t', color: '#64748b' }
+            },
+            y: {
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: { color: '#94a3b8' },
+              title: { display: true, text: 'Nilai Fungsi f(x) / h(t) / K(t)', color: '#64748b' }
+            }
+          }
+        }
+      });
+    }
+
+    function updateChartModel() {
+      if (!chartInstance) return;
+
+      const modelType = document.getElementById('function-select').value;
+      let labels = [];
+      let data = [];
+      let formulaText = "";
+      let stat1 = "", stat2 = "", stat3 = "";
+
+      if (modelType === 'exponential') {
+        formulaText = "Model Kelinci: $K(t) = 4 \\cdot 2^{t/4}$";
+        for (let t = 0; t <= 16; t += 1) {
+          labels.push(`t=${t}`);
+          data.push(4 * Math.pow(2, t / 4));
+        }
+        stat1 = "4 ribu (saat t = 0)";
+        stat2 = "Tidak Ada Asimtot Tegak";
+        stat3 = "Pertumbuhan eksponensial. Berlipat ganda setiap 4 tahun.";
+      } else if (modelType === 'trigonometric') {
+        formulaText = "Roller Coaster: $h(t) = 5 \\cos\\left(\\frac{\\pi}{6} t\\right) + 5$";
+        for (let t = 0; t <= 24; t += 1) {
+          labels.push(`t=${t}`);
+          data.push(5 * Math.cos((Math.PI / 6) * t) + 5);
+        }
+        stat1 = "10 meter (saat t = 0, 12, 24)";
+        stat2 = "0 meter (saat t = 6, 18)";
+        stat3 = "Fungsi gelombang cosinus periodik dengan periode T = 12 detik.";
+      } else if (modelType === 'roof') {
+        formulaText = "Fasad Atap: $f(x) = 10 - |x - 5|$";
+        for (let x = 0; x <= 10; x += 0.5) {
+          labels.push(`x=${x}`);
+          data.push(10 - Math.abs(x - 5));
+        }
+        stat1 = "10 meter (saat x = 5)";
+        stat2 = "Sumbu Simetri x = 5";
+        stat3 = "Bentuk V terbalik simetris. Ketinggian f(x) ≥ 6 meter untuk x ∈ [1, 9] (lebar 8 m).";
+      } else if (modelType === 'bridge') {
+        formulaText = "Kabel Jembatan: $g(x) = |x - 8| + 2$";
+        for (let x = 0; x <= 16; x += 1) {
+          labels.push(`x=${x}`);
+          data.push(Math.abs(x - 8) + 2);
+        }
+        stat1 = "2 meter (Titik Terendah x = 8)";
+        stat2 = "Sumbu Simetri x = 8";
+        stat3 = "Grafik berbentuk V terbuka ke atas dengan titik terendah 2 meter dari jalan.";
+      }
+
+      chartInstance.data.labels = labels;
+      chartInstance.data.datasets[0].data = data;
+      chartInstance.update();
+
+      const formulaBox = document.getElementById('graph-formula-box');
+      formulaBox.innerHTML = formulaText;
+      renderMath(formulaBox);
+
+      document.getElementById('graph-stat-1').textContent = stat1;
+      document.getElementById('graph-stat-2').textContent = stat2;
+      document.getElementById('graph-stat-3').textContent = stat3;
+    }
+
+    // -------------------------------------------------------------
+    // 8. RENDER SUMMARY VIEW
+    // -------------------------------------------------------------
+    function renderSummaryList() {
+      const summaryContainer = document.getElementById('summary-list');
+      summaryContainer.innerHTML = '';
+
+      questions.forEach((q, index) => {
+        const item = document.createElement('div');
+        item.className = 'p-5 bg-slate-950/60 rounded-xl border border-slate-800 space-y-3';
+
+        item.innerHTML = `
+          <div class="flex items-center justify-between gap-2 border-b border-slate-800 pb-2">
+            <span class="text-xs font-bold px-2.5 py-1 rounded-md bg-cyan-950 text-cyan-300 border border-cyan-800">
+              Soal ${index + 1} &bull; ${q.category}
+            </span>
+            <span class="text-xs text-slate-400">Jawaban Benar: <strong class="text-emerald-400">${String.fromCharCode(65 + q.correct)}</strong></span>
+          </div>
+          <div class="text-sm text-slate-200 font-medium">${q.question}</div>
+          <div class="p-3 bg-slate-900 rounded-lg border border-slate-800 text-xs text-slate-300">
+            <strong class="text-cyan-400"><i class="fa-solid fa-check mr-1"></i> Pembahasan:</strong>
+            <div class="mt-1">${q.explanation}</div>
+          </div>
+        `;
+
+        summaryContainer.appendChild(item);
+      });
+    }
+  </script>
+</body>
+</html>
